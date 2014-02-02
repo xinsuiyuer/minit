@@ -1,4 +1,5 @@
 #include <stddef.h>
+#include <unistd.h>
 #include <signal.h>
 
 
@@ -43,7 +44,11 @@ int main(int argc, char *argv[]) {
     while(!terminate)
         sigsuspend(&wait_mask);
 
-    // TODO: send SIGTERM to all children, run a shutdown script.
+    // Only bring everything else down when we're actually init.
+    if(getpid() == 1)
+        kill(-1, SIGTERM);
+
+    // TODO: run a shutdown script?
 
     return 0;
 }
