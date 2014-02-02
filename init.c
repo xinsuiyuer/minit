@@ -1,6 +1,12 @@
 #include <stddef.h>
+#include <errno.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
+
+#ifndef DEFAULT_STARTUP
+    #define DEFAULT_STARTUP "/etc/rc.startup"
+#endif
 
 
 static volatile int terminate = 0;
@@ -10,7 +16,7 @@ static void handle_termination(int sig) {
     terminate = 1;
 }
 
-static sigset_t setup_signals(void) {
+static sigset_t setup_signals(sigset_t *out_default_mask) {
     sigset_t wait_mask;
     sigfillset(&wait_mask);
 
@@ -31,15 +37,30 @@ static sigset_t setup_signals(void) {
 
     sigset_t all_mask;
     sigfillset(&all_mask);
-    sigprocmask(SIG_SETMASK, &all_mask, NULL);
+    sigprocmask(SIG_SETMASK, &all_mask, out_default_mask);
 
     return wait_mask;
 }
 
-int main(int argc, char *argv[]) {
-    sigset_t wait_mask = setup_signals();
+static pid_t run(const char *filename, sigset_t mask) {
+    pid_t pid = fork();
+    // FIXME: handle errors.
 
-    // TODO: run a startup script.
+    if(pid == 0) {
+        sigprocmask(SIG_SETMASK, &mask, NULL);
+        execlp(filename, filename, NULL);
+        exit(errno == ENOENT ? 0 : 1);
+    }
+
+    return pid;
+}
+
+int main(int argc, char *argv[]) {
+    sigset_t default_mask;
+    sigset_t wait_mask = setup_signals(&default_mask);
+
+    const char *startup = (argc > 1 ? argv[1] : NULL);
+    run((startup && startup[0] ? startup : DEFAULT_STARTUP), default_mask);
 
     while(!terminate)
         sigsuspend(&wait_mask);
