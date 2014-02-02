@@ -4,8 +4,8 @@
 #include <unistd.h>
 #include <signal.h>
 
-#ifndef DEFAULT_STARTUP
-    #define DEFAULT_STARTUP "/etc/rc.startup"
+#ifndef DEFAULT_RC
+    #define DEFAULT_RC "/etc/rc.init"
 #endif
 
 
@@ -33,7 +33,7 @@ static sigset_t setup_signals(sigset_t *out_default_mask) {
     sigdelset(&wait_mask, SIGTERM);
     sigdelset(&wait_mask, SIGINT);
 
-    // TODO: also handle SIGUSR1 or such and run another script?
+    // TODO: also handle SIGUSR1 or such and send it to the rc process?
 
     sigset_t all_mask;
     sigfillset(&all_mask);
@@ -59,8 +59,8 @@ int main(int argc, char *argv[]) {
     sigset_t default_mask;
     sigset_t wait_mask = setup_signals(&default_mask);
 
-    const char *startup = (argc > 1 ? argv[1] : NULL);
-    run((startup && startup[0] ? startup : DEFAULT_STARTUP), default_mask);
+    const char *rc = (argc > 1 ? argv[1] : NULL);
+    run((rc && rc[0] ? rc : DEFAULT_RC), default_mask);
 
     while(!terminate)
         sigsuspend(&wait_mask);
@@ -68,8 +68,6 @@ int main(int argc, char *argv[]) {
     // Only bring everything else down when we're actually init.
     if(getpid() == 1)
         kill(-1, SIGTERM);
-
-    // TODO: run a shutdown script?
 
     return 0;
 }
