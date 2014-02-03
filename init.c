@@ -52,12 +52,12 @@ static sigset_t setup_signals(sigset_t *out_default_mask) {
     return wait_mask;
 }
 
-static pid_t run(const char *filename, sigset_t mask) {
+static pid_t run(const char *filename, sigset_t child_mask) {
     pid_t pid = fork();
     // FIXME: handle errors.
 
     if(pid == 0) {
-        sigprocmask(SIG_SETMASK, &mask, NULL);
+        sigprocmask(SIG_SETMASK, &child_mask, NULL);
         execlp(filename, filename, NULL);
         exit(errno == ENOENT ? 0 : 1);
     }
