@@ -1,9 +1,9 @@
 CPPFLAGS ?=
 CFLAGS   ?= -Os -Wall -pedantic -std=gnu11
-LDFLAGS  ?=
+LDFLAGS  ?= -s
 
 init: init.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $^ -o $@
+	$(CC) $(CPPFLAGS) $(CFLAGS) $^ $(LDFLAGS) -o $@
 
 clean:
 	rm init
