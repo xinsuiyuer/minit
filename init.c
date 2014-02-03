@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
+#include <sys/wait.h>
 
 #ifndef DEFAULT_RC
     #define DEFAULT_RC "/etc/rc.init"
@@ -12,6 +13,15 @@
 static volatile int terminate = 0;
 
 
+static void handle_child(int sig) {
+    int saved_errno = errno;
+
+    while(waitpid(-1, NULL, WNOHANG) > 0)
+        continue;
+
+    errno = saved_errno;
+}
+
 static void handle_termination(int sig) {
     terminate = 1;
 }
@@ -20,14 +30,14 @@ static sigset_t setup_signals(sigset_t *out_default_mask) {
     sigset_t wait_mask;
     sigfillset(&wait_mask);
 
-    // In Linux and I believe most modern Unices, explicitly ignoring SIGCHLD
-    // is enough to have children automatically reaped by the kernel.  If you
-    // need this to work in an exotic environment, you'll want to instead
-    // install your own handler that reaps children.
-    sigaction(SIGCHLD, &(struct sigaction){ .sa_handler = SIG_IGN }, NULL);
-
-    struct sigaction action = { .sa_handler = handle_termination };
+    struct sigaction action = { .sa_flags = SA_NOCLDSTOP };
     sigfillset(&action.sa_mask);
+
+    action.sa_handler = handle_child;
+    sigaction(SIGCHLD, &action, NULL);
+    sigdelset(&wait_mask, SIGCHLD);
+
+    action.sa_handler = handle_termination;
     sigaction(SIGTERM, &action, NULL);
     sigaction(SIGINT, &action, NULL);
     sigdelset(&wait_mask, SIGTERM);
