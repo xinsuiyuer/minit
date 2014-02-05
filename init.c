@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
     // Only bring everything else down when we're actually init.
     if(getpid() == 1) {
         kill(-1, SIGTERM);
-        while(waitpid(-1, NULL, 0) > 0)
+        while(wait(NULL) > 0)
             continue;
     }
 
