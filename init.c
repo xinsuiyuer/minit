@@ -34,6 +34,10 @@ static void handle_termination(int sig) {
 }
 
 static sigset_t setup_signals(sigset_t *out_default_mask) {
+    sigset_t all_mask;
+    sigfillset(&all_mask);
+    sigprocmask(SIG_SETMASK, &all_mask, out_default_mask);
+
     sigset_t wait_mask;
     sigfillset(&wait_mask);
 
@@ -51,10 +55,6 @@ static sigset_t setup_signals(sigset_t *out_default_mask) {
     sigdelset(&wait_mask, SIGINT);
 
     // TODO: also handle SIGUSR1, maybe run another script?
-
-    sigset_t all_mask;
-    sigfillset(&all_mask);
-    sigprocmask(SIG_SETMASK, &all_mask, out_default_mask);
 
     return wait_mask;
 }
