@@ -40,7 +40,7 @@ static sigset_t setup_signals(sigset_t *out_default_mask) {
     sigset_t wait_mask;
     sigfillset(&wait_mask);
 
-    struct sigaction action = { .sa_flags = SA_NOCLDSTOP };
+    struct sigaction action = { .sa_flags = SA_NOCLDSTOP | SA_RESTART };
     sigfillset(&action.sa_mask);
 
     action.sa_handler = handle_child;
@@ -88,8 +88,11 @@ int main(int argc, char *argv[]) {
         sigsuspend(&wait_mask);
 
     // Only bring everything else down when we're actually init.
-    if(getpid() == 1)
+    if(getpid() == 1) {
         kill(-1, SIGTERM);
+        while(waitpid(-1, NULL, 0) > 0)
+            continue;
+    }
 
     return 0;
 }
