@@ -20,8 +20,7 @@ static volatile int terminate = 0;
 static void handle_child(int sig) {
     int saved_errno = errno;
 
-    pid_t pid;
-    while((pid = waitpid(-1, NULL, WNOHANG)) > 0) {
+    for(pid_t pid; (pid = waitpid(-1, NULL, WNOHANG)) > 0; ) {
         if(pid == shutdown_pid)
             shutdown_pid = 0;
     }
