@@ -2,10 +2,10 @@ CPPFLAGS ?=
 CFLAGS   ?= -Os -Wall -pedantic -std=gnu11
 LDFLAGS  ?= -s
 
-init: init.c
+minit: minit.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ $(LDFLAGS) -o $@
 
 clean:
-	rm init
+	rm minit
 
 .PHONY: clean
