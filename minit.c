@@ -74,7 +74,7 @@ static sigset_t setup_signals(sigset_t *out_default_mask) {
     sigdelset(&suspend_mask, SIGTERM);
     sigdelset(&suspend_mask, SIGINT);
 
-    // TODO: also handle SIGUSR1, maybe run another script?
+    // TODO: also handle SIGUSR1/2, maybe run another script/s?
 
     return suspend_mask;
 }
@@ -108,7 +108,7 @@ int main(int argc, char *argv[]) {
     while(shutdown_pid > 0)
         sigsuspend(&suspend_mask);
 
-    // Only bring everything else down when we're actually init.
+    // If we're running as a regular process (not init), don't kill -1.
     if(getpid() == 1) {
         kill(-1, SIGTERM);
         while(wait(NULL) > 0)
