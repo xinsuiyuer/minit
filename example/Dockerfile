@@ -15,6 +15,16 @@
 # Stop the backgrounded container with:
 #     sudo docker stop $container
 #
+#
+# Here's what docker images reports for this example, compared to an equivalent
+# one running supervisord:
+#     REPOSITORY            TAG      ...   VIRTUAL SIZE
+#     minit-example         latest   ...   301.9 MB
+#     supervisord-example   latest   ...   326.9 MB
+#
+# That's 25M smaller without losing anything but supervisord's service
+# monitoring.
+
 
 FROM ubuntu:quantal
 MAINTAINER Charles Lindsay <chaz@chazomatic.us>
@@ -32,5 +42,5 @@ ADD startup /etc/minit/startup
 
 EXPOSE 22 80
 
-# Always use the [] form of CMD, else /bin/sh will be pid 1 instead of minit.
+# Always use the [] form of CMD, else a shell will be pid 1 instead of minit.
 CMD ["/sbin/minit"]
