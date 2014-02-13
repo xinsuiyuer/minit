@@ -19,8 +19,10 @@ your nice clean container image.
 
 *Advantages vs. Supervisor:*
  * No dependencies
- * Only about 6K in size (vs. about 15M for Python and Supervisor)
+ * Only about 6K in size (vs. about 17M for Python and Supervisor reported by
+   apt-get on a clean Quantal image)
  * Allows arbitrary commands in container startup and shutdown
+ * Easier to control daemons that can't run in the foreground like Postfix
 
 *Disadvantages vs. Supervisor:*
  * Doesn't monitor or restart services
