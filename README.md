@@ -5,6 +5,8 @@ Minit is a minimalist `init(8)` implementation designed for use inside
 containers, for instance as the root process in a
 [Docker](https://www.docker.io/) image.
 
+<https://github.com/chazomaticus/minit>
+
 Justification
 -------------
 
