@@ -12,9 +12,14 @@ minit: minit.c
 clean:
 	rm -f minit
 
+install: minit
+	install -D minit $(DESTDIR)/sbin/minit
+uninstall:
+	rm -f $(DESTDIR)/sbin/minit
+
 dist: minit-$(VERSION).tar.gz
 minit-$(VERSION).tar.gz: COPYING Makefile README.md minit.c example/Dockerfile example/startup
 	set -e; mkdir ${@:%.tar.gz=%}; cp -a --parents $^ ${@:%.tar.gz=%}; \
 		tar czf $@ ${@:%.tar.gz=%}; rm -rf ${@:%.tar.gz=%};
 
-.PHONY: all clean dist
+.PHONY: all clean install uninstall dist
