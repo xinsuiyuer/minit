@@ -10,7 +10,7 @@ minit: minit.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $^ $(LDFLAGS) -o $@
 
 clean:
-	rm minit
+	rm -f minit
 
 dist: minit-$(VERSION).tar.gz
 minit-$(VERSION).tar.gz: COPYING Makefile README.md minit.c example/Dockerfile example/startup
