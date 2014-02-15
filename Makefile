@@ -1,13 +1,13 @@
-CPPFLAGS ?=
-CFLAGS   ?= -Os -Wall -pedantic -std=gnu11
-LDFLAGS  ?= -s
+CPPFLAGS =
+CFLAGS   = -Os -Wall -pedantic
+LDFLAGS  = -s
 
-DATE    := $(shell date +%Y%m%d)
-VERSION ?= $(DATE)
+DATE   := $(shell date +%Y%m%d)
+VERSION = $(DATE)
 
 all: minit
 minit: minit.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) $^ $(LDFLAGS) -o $@
+	$(CC) $(CPPFLAGS) $(CFLAGS) -std=gnu11 $^ $(LDFLAGS) -o $@
 
 clean:
 	rm -f minit
