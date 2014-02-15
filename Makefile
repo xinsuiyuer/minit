@@ -5,21 +5,34 @@ LDFLAGS  = -s
 DATE   := $(shell date +%Y%m%d)
 VERSION = $(DATE)
 
-all: minit
-minit: minit.c
+BIN = minit
+SRC = $(BIN).c
+
+DIST_BASE = $(BIN)-$(VERSION)
+DIST      = $(DIST_BASE).tar.gz
+
+prefix      =
+exec_prefix = $(prefix)
+sbindir     = $(exec_prefix)/sbin
+
+
+all: $(BIN)
+$(BIN): $(SRC)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -std=gnu11 $^ $(LDFLAGS) -o $@
 
 clean:
-	rm -f minit
+	rm -f $(BIN)
 
-install: minit
-	install -D minit $(DESTDIR)/sbin/minit
+install: $(BIN)
+	install -D $(BIN) $(DESTDIR)$(sbindir)/$(BIN)
 uninstall:
-	rm -f $(DESTDIR)/sbin/minit
+	rm -f $(DESTDIR)$(sbindir)/$(BIN)
 
-dist: minit-$(VERSION).tar.gz
-minit-$(VERSION).tar.gz: COPYING Makefile README.md minit.c example/Dockerfile example/startup
-	set -e; mkdir ${@:%.tar.gz=%}; cp -a --parents $^ ${@:%.tar.gz=%}; \
-		tar czf $@ ${@:%.tar.gz=%}; rm -rf ${@:%.tar.gz=%};
+dist: $(DIST)
+$(DIST): $(SRC) COPYING Makefile README.md example/Dockerfile example/startup
+	mkdir $(DIST_BASE)
+	cp -a --parents $^ $(DIST_BASE)
+	tar czf $@ $(DIST_BASE)
+	rm -rf $(DIST_BASE)
 
 .PHONY: all clean install uninstall dist
