@@ -18,7 +18,7 @@ sbindir     = $(exec_prefix)/sbin
 
 all: $(BIN)
 $(BIN): $(SRC)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -std=gnu11 $^ $(LDFLAGS) -o $@
+	$(CC) $(CPPFLAGS) $(CFLAGS) -std=gnu99 $^ $(LDFLAGS) -o $@
 
 clean:
 	rm -f $(BIN)
