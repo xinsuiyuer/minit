@@ -1,0 +1,15 @@
+Source: minit
+Maintainer: Charles Lindsay <chaz@chazomatic.us>
+Section: admin
+Priority: optional
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.3
+Homepage: https://github.com/chazomaticus/minit
+Vcs-Git: https://github.com/chazomaticus/minit.git
+
+Package: minit
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Minimalist init implementation for containers
+ Minit is a minimalist init(8) implementation designed for use inside
+ containers, for instance as the root process in a Docker image.

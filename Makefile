@@ -15,6 +15,8 @@ prefix      =
 exec_prefix = $(prefix)
 sbindir     = $(exec_prefix)/sbin
 
+DEB_BUILD    = deb-build
+
 
 all: $(BIN)
 $(BIN): $(SRC)
@@ -35,4 +37,14 @@ $(DIST): $(SRC) COPYING Makefile README.md example/Dockerfile example/startup
 	tar czf $@ $(DIST_BASE)
 	rm -rf $(DIST_BASE)
 
-.PHONY: all clean install uninstall dist
+# Sets up a directory where we can build debian packages.
+$(DEB_BUILD): $(DIST)
+	mkdir $@
+	tar xzf $(DIST) -C $@
+	cp -a $(DIST) $@/$(BIN)_$(VERSION).orig.tar.gz
+	cp -a debian $@/$(DIST_BASE)
+
+deb-clean:
+	rm -rf $(DEB_BUILD)
+
+.PHONY: all clean install uninstall dist deb-clean
