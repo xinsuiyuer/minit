@@ -2,8 +2,7 @@
 # <https://docs.docker.io/en/latest/examples/using_supervisord/> and makes use
 # of minit (https://github.com/chazomaticus/minit) instead of supervisord.
 #
-# First run make in the parent directory.  Then build with:
-#     cp -a ../minit .
+# Build with:
 #     sudo docker build -t minit-example .
 #
 # Run in the foreground with:
@@ -29,13 +28,16 @@
 FROM ubuntu:quantal
 MAINTAINER Charles Lindsay <chaz@chazomatic.us>
 
+# This is roughly equivalent to add-apt-repository ppa:chazomaticus/minit.
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E007F6BD
+RUN echo "deb http://ppa.launchpad.net/chazomaticus/minit/ubuntu quantal main" > /etc/apt/sources.list.d/minit.list
+
 RUN apt-get update
 RUN apt-get upgrade -y
 
-RUN apt-get install -y openssh-server apache2
+RUN apt-get install -y openssh-server apache2 minit
 RUN mkdir -p /var/run/sshd
 
-ADD minit /sbin/minit
 ADD startup /etc/minit/startup
 # We don't need anything special on shutdown, since minit already supplies
 # anything running with SIGTERM when it's shutting down.

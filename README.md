@@ -32,7 +32,10 @@ Use
 
 Build minit by running `make` (or otherwise compiling the `.c` file into an
 executable).  Put the resulting executable in your container's filesystem and
-set it to run as the root process when your container starts.
+set it to run as the root process when your container starts.  Alternately, if
+your container is running Ubuntu there's a [minit
+PPA](https://launchpad.net/~chazomaticus/+archive/minit) you can add instead of
+building minit yourself.
 
 When minit starts up, it `exec`'s `/etc/minit/startup`, then goes to sleep
 `wait`ing on children until it gets a `SIGTERM` (or `SIGINT`, so you can stop
