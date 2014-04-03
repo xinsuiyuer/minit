@@ -1,14 +1,21 @@
 Minit
 =====
 
-Minit is a minimalist `init(8)` implementation designed for use inside
-containers, for instance as the root process in a
-[Docker](https://www.docker.io/) image.
+Minit is a minimalist `init` implementation designed for use inside containers,
+for instance as the root process in a [Docker](https://www.docker.io/) image.
 
 <https://github.com/chazomaticus/minit>
 
 Justification
 -------------
+
+If you need more than one process inside your container, it's important for the
+root process to behave like `init(8)`.  See
+[baseimage-docker](http://phusion.github.io/baseimage-docker/) for a thorough
+explanation of what that means and the special considerations for `init` inside
+Docker.  (Note that minit doesn't automatically run any of the services deemed
+essential by baseimage-docker---though it does provide an easy way for you to
+run them---minit simply solves the `init` process issues.)
 
 Docker
 [recommends](https://docs.docker.io/en/latest/examples/using_supervisord/)
