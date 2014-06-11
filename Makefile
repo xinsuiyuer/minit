@@ -32,7 +32,8 @@ uninstall:
 	rm -f $(DESTDIR)$(sbindir)/$(BIN)
 
 dist: $(DIST)
-$(DIST): $(SRC) COPYING Makefile README.md example/Dockerfile example/startup
+$(DIST): $(SRC) COPYING Makefile README.md example/Dockerfile example/startup \
+		image/Dockerfile
 	mkdir $(DIST_BASE)
 	cp -a --parents $^ $(DIST_BASE)
 	tar czf $@ $(DIST_BASE)
