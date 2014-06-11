@@ -20,13 +20,13 @@
     3. This notice may not be removed or altered from any source distribution.
 */
 
-#include <stddef.h>
 #include <errno.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <unistd.h>
 #include <signal.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <sys/wait.h>
+#include <unistd.h>
 
 #ifndef DEFAULT_STARTUP
 #define DEFAULT_STARTUP "/etc/minit/startup"
