@@ -23,6 +23,7 @@
 #include <stddef.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <unistd.h>
 #include <signal.h>
 #include <sys/wait.h>
@@ -82,7 +83,8 @@ static sigset_t setup_signals(sigset_t *out_default_mask) {
 
 static pid_t run(const char *filename, sigset_t child_mask) {
     pid_t pid = fork();
-    // FIXME: handle errors.
+    if(pid == -1)
+        perror("minit: fork");
 
     if(pid == 0) {
         sigprocmask(SIG_SETMASK, &child_mask, NULL);
