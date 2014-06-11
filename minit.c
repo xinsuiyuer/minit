@@ -28,10 +28,10 @@
 #include <sys/wait.h>
 
 #ifndef DEFAULT_STARTUP
-    #define DEFAULT_STARTUP "/etc/minit/startup"
+#define DEFAULT_STARTUP "/etc/minit/startup"
 #endif
 #ifndef DEFAULT_SHUTDOWN
-    #define DEFAULT_SHUTDOWN "/etc/minit/shutdown"
+#define DEFAULT_SHUTDOWN "/etc/minit/shutdown"
 #endif
 
 
