@@ -13,9 +13,9 @@ If you need more than one process inside your container, it's important for the
 root process to behave like `init(8)`.  See
 [baseimage-docker](http://phusion.github.io/baseimage-docker/) for a thorough
 explanation of what that means and the special considerations for `init` inside
-Docker.  (Note that minit doesn't automatically run any of the services deemed
-essential by baseimage-docker---though it does provide an easy way for you to
-run them---minit simply solves the `init` process issues.)
+Docker.  Note that minit doesn't automatically run any of the services deemed
+essential by baseimage-docker (though it does provide an easy way for you to
+run them manually).  Minit simply solves the `init` process issues.
 
 Docker
 [recommends](https://docs.docker.io/en/latest/examples/using_supervisord/)
