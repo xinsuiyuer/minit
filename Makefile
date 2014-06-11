@@ -15,7 +15,7 @@ prefix      =
 exec_prefix = $(prefix)
 sbindir     = $(exec_prefix)/sbin
 
-DEB_BUILD    = deb-build
+DEB_BUILD = deb-build
 
 
 all: $(BIN)
