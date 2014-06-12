@@ -21,6 +21,7 @@ minit yourself.  For another Docker example:
     # This is roughly equivalent to add-apt-repository ppa:chazomaticus/minit.
     RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E007F6BD
     RUN echo "deb http://ppa.launchpad.net/chazomaticus/minit/ubuntu quantal main" > /etc/apt/sources.list.d/minit.list
+    
     RUN apt-get update && apt-get upgrade -y && apt-get install -y minit # etc.
 
 Lastly, you can simply build minit by running `make` (or otherwise compiling
