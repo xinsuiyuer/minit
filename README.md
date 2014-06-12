@@ -6,6 +6,48 @@ for instance as the root process in a [Docker](https://www.docker.io/) image.
 
 <https://github.com/chazomaticus/minit>
 
+Use
+---
+
+There are three ways to start using minit inside your container.  The easiest,
+assuming you're using Docker, is to simply use one of the [minit base
+images](https://registry.hub.docker.com/u/chazomaticus/minit/) as a base for
+your own Docker image.  See the `example` directory.
+
+If your container will be running Ubuntu, you can also make use of the [minit
+PPA](https://launchpad.net/~chazomaticus/+archive/minit) to avoid building
+minit yourself.  For another Docker example:
+
+    # This is roughly equivalent to add-apt-repository ppa:chazomaticus/minit.
+    RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E007F6BD
+    RUN echo "deb http://ppa.launchpad.net/chazomaticus/minit/ubuntu quantal main" > /etc/apt/sources.list.d/minit.list
+    RUN apt-get update && apt-get upgrade -y && apt-get install -y minit # etc.
+
+Lastly, you can simply build minit by running `make` (or otherwise compiling
+the `.c` file into an executable).  Put the resulting executable in your
+container's filesystem and set it to run as the root process when your
+container starts.
+
+Note that in Docker, you need to use an *exec* form of `ENTRYPOINT` or `CMD`,
+as opposed to a *shell* form to run minit.  See for example the [`ENTRYPOINT`
+docs](http://docs.docker.com/reference/builder/#entrypoint).  The minit base
+images set this up for you automatically.
+
+Operation
+---------
+
+When minit starts up, it `exec`s `/etc/minit/startup`, then goes to sleep
+`wait`ing on children until it gets a `SIGTERM` (or `SIGINT`, so you can stop
+your container with `Ctrl+C` if you ran it in the foreground).  When it gets
+one of those signals, it `exec`s `/etc/minit/shutdown` and waits for it to
+finish, then `kill`s all remaining processes with `SIGTERM`.
+
+You can override the startup and shutdown scripts with command line arguments:
+the first, if non-empty, is run instead of `/etc/minit/startup`, and the second
+is run instead of `/etc/minit/shutdown`.  Minit's environment is passed
+unmolested to the scripts, so if you need to pass arguments to them, do it
+environmentally.
+
 Justification
 -------------
 
@@ -17,12 +59,11 @@ Docker.  Note that minit doesn't automatically run any of the services deemed
 essential by baseimage-docker (though it does provide an easy way for you to
 run them manually).  Minit simply solves the `init` process issues.
 
-Docker
-[recommends](https://docs.docker.io/en/latest/examples/using_supervisord/)
-running [Supervisor](http://supervisord.org/) as your container's root process
-if you need to start multiple services inside a single container.  Sometimes,
-though, you don't want the overhead of a full Python stack tagging along with
-your nice clean container image.
+Docker [recommends](http://docs.docker.com/articles/using_supervisord/) running
+[Supervisor](http://supervisord.org/) as your container's root process if you
+need to start multiple services inside a single container.  Sometimes, though,
+you don't want the overhead of a full Python stack tagging along with your nice
+clean container image.
 
 *Advantages vs. Supervisor:*
  * No dependencies
@@ -33,31 +74,6 @@ your nice clean container image.
 
 *Disadvantages vs. Supervisor:*
  * Doesn't monitor or restart services
-
-Use
----
-
-Build minit by running `make` (or otherwise compiling the `.c` file into an
-executable).  Put the resulting executable in your container's filesystem and
-set it to run as the root process when your container starts.  Alternately, if
-your container is running Ubuntu there's a [minit
-PPA](https://launchpad.net/~chazomaticus/+archive/minit) you can add instead of
-building minit yourself.
-
-When minit starts up, it `exec`'s `/etc/minit/startup`, then goes to sleep
-`wait`ing on children until it gets a `SIGTERM` (or `SIGINT`, so you can stop
-your container with `Ctrl+C` if you ran it in the foreground).  When it gets
-one of those signals, it `exec`'s `/etc/minit/shutdown` and waits for it to
-finish, then `kill`s all remaining processes with `SIGTERM`.
-
-You can override the startup and shutdown scripts with command line arguments:
-the first, if non-empty, is run instead of `/etc/minit/startup`, and the second
-is run instead of `/etc/minit/shutdown`.  Minit's environment is passed
-unmolested to the scripts, so if you need to pass arguments to them, do it
-environmentally.
-
-Check out the `example` directory for a Docker example.  I believe minit is
-relatively portable, and should work inside most Unices' version of containers.
 
 
 Enjoy!
