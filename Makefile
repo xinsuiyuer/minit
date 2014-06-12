@@ -1,5 +1,6 @@
 CPPFLAGS =
-CFLAGS   = -Os -Wall -pedantic
+# -fno-async... is safe and sometimes cuts down binary size by almost half.
+CFLAGS   = -Os -Wall -pedantic -fno-asynchronous-unwind-tables
 LDFLAGS  = -s
 
 DATE   := $(shell date +%Y%m%d)
