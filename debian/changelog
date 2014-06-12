@@ -1,3 +1,10 @@
+minit (20140612-1~trusty1) trusty; urgency=low
+
+  * Print certain exec() errors
+  * Doc updates
+
+ -- Charles Lindsay <chaz@chazomatic.us>  Thu, 12 Jun 2014 00:38:54 -0700
+
 minit (20140611-1~trusty1) trusty; urgency=low
 
   * Print fork() errors
