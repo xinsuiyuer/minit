@@ -36,6 +36,9 @@
 #endif
 
 
+static const char *const default_startup = DEFAULT_STARTUP;
+static const char *const default_shutdown = DEFAULT_SHUTDOWN;
+
 static volatile pid_t shutdown_pid = 0;
 static volatile int terminate = 0;
 
@@ -89,7 +92,13 @@ static pid_t run(const char *filename, sigset_t child_mask) {
     if(pid == 0) {
         sigprocmask(SIG_SETMASK, &child_mask, NULL);
         execlp(filename, filename, NULL);
-        exit(errno == ENOENT ? 0 : 1);
+
+        // Ignore "no such file" errors unless specified by caller.
+        if((filename == default_startup || filename == default_shutdown)
+                && errno == ENOENT)
+            exit(0);
+        perror(filename);
+        exit(1);
     }
 
     return pid;
@@ -99,8 +108,8 @@ int main(int argc, char *argv[]) {
     sigset_t default_mask;
     sigset_t suspend_mask = setup_signals(&default_mask);
 
-    const char *startup = (argc > 1 && *argv[1] ? argv[1] : DEFAULT_STARTUP);
-    const char *shutdown = (argc > 2 && *argv[2] ? argv[2] : DEFAULT_SHUTDOWN);
+    const char *startup = (argc > 1 && *argv[1] ? argv[1] : default_startup);
+    const char *shutdown = (argc > 2 && *argv[2] ? argv[2] : default_shutdown);
 
     run(startup, default_mask);
 
