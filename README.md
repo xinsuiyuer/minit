@@ -56,9 +56,7 @@ If you need more than one process inside your container, it's important for the
 root process to behave like `init(8)`.  See
 [baseimage-docker](http://phusion.github.io/baseimage-docker/) for a thorough
 explanation of what that means and the special considerations for `init` inside
-Docker.  Note that minit doesn't automatically run any of the services deemed
-essential by baseimage-docker (though it does provide an easy way for you to
-run them manually).  Minit simply solves the `init` process issues.
+Docker.  Minit solves the init problem in a dead-simple way.
 
 Docker [recommends](http://docs.docker.com/articles/using_supervisord/) running
 [Supervisor](http://supervisord.org/) as your container's root process if you
@@ -68,13 +66,23 @@ clean container image.
 
 *Advantages vs. Supervisor:*
  * No dependencies
- * Only about 6K in size (vs. about 17M for Python and Supervisor reported by
-   apt-get on a clean Quantal image)
+ * Smaller (only about 6K in size vs. about 18M for Python and Supervisor
+   reported by apt-get on a clean Trusty image)
  * Allows arbitrary commands in container startup and shutdown
  * Easier to control daemons that can't run in the foreground like Postfix
 
 *Disadvantages vs. Supervisor:*
  * Doesn't monitor or restart services
+
+*Advantages vs. baseimage-docker:*
+ * Simpler to use
+ * Easier to control exactly which services get started
+ * Smaller (a Trusty image with minit added is about 275M vs. about 346M for
+   baseimage-docker)
+ * Works on any distro, not just Ubuntu
+
+*Disadvantages vs. baseimage-docker:*
+ * Doesn't automatically run all the services they deem essential
 
 
 Enjoy!
