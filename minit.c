@@ -1,7 +1,7 @@
 /*
     minit - minimalist init implementation for containers
             <https://github.com/chazomaticus/minit>
-    Copyright 2014 Charles Lindsay <chaz@chazomatic.us>
+    Copyright 2014, 2015 Charles Lindsay <chaz@chazomatic.us>
 
     This software is provided 'as-is', without any express or implied warranty.
     In no event will the authors be held liable for any damages arising from
