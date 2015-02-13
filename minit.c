@@ -28,6 +28,10 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#if _POSIX_C_SOURCE < 199309L
+#error minit requires _POSIX_C_SOURCE >= 199309
+#endif
+
 #ifndef DEFAULT_STARTUP
 #define DEFAULT_STARTUP "/etc/minit/startup"
 #endif
@@ -39,49 +43,41 @@
 static const char *const default_startup = DEFAULT_STARTUP;
 static const char *const default_shutdown = DEFAULT_SHUTDOWN;
 
-static volatile pid_t shutdown_pid = 0;
-static volatile int terminate = 0;
 
-
-static void handle_child(int sig) {
-    int saved_errno = errno;
+static int handle_child(pid_t search_pid) {
+    int found = 0;
 
     for(pid_t pid; (pid = waitpid(-1, NULL, WNOHANG)) > 0; ) {
-        if(pid == shutdown_pid)
-            shutdown_pid = 0;
+        if(pid == search_pid)
+            found = 1;
     }
 
-    errno = saved_errno;
+    return found;
 }
 
-static void handle_termination(int sig) {
-    terminate = 1;
+static void wait_for_termination(void) {
+    sigset_t receive_set;
+    sigemptyset(&receive_set);
+    sigaddset(&receive_set, SIGCHLD);
+    sigaddset(&receive_set, SIGTERM);
+    sigaddset(&receive_set, SIGINT);
+
+    while(1) {
+        if(sigwaitinfo(&receive_set, NULL) != SIGCHLD)
+            break;
+
+        handle_child(0);
+    }
 }
 
-static sigset_t setup_signals(sigset_t *out_default_mask) {
-    sigset_t all_mask;
-    sigfillset(&all_mask);
-    sigprocmask(SIG_SETMASK, &all_mask, out_default_mask);
+static void wait_for_child(pid_t child_pid) {
+    sigset_t receive_set;
+    sigemptyset(&receive_set);
+    sigaddset(&receive_set, SIGCHLD);
 
-    sigset_t suspend_mask;
-    sigfillset(&suspend_mask);
-
-    struct sigaction action = { .sa_flags = SA_NOCLDSTOP | SA_RESTART };
-    sigfillset(&action.sa_mask);
-
-    action.sa_handler = handle_child;
-    sigaction(SIGCHLD, &action, NULL);
-    sigdelset(&suspend_mask, SIGCHLD);
-
-    action.sa_handler = handle_termination;
-    sigaction(SIGTERM, &action, NULL);
-    sigaction(SIGINT, &action, NULL);
-    sigdelset(&suspend_mask, SIGTERM);
-    sigdelset(&suspend_mask, SIGINT);
-
-    // TODO: also handle SIGUSR1/2, maybe run another script/s?
-
-    return suspend_mask;
+    do {
+        sigwaitinfo(&receive_set, NULL);
+    } while(!handle_child(child_pid));
 }
 
 static pid_t run(const char *filename, sigset_t child_mask) {
@@ -104,21 +100,26 @@ static pid_t run(const char *filename, sigset_t child_mask) {
     return pid;
 }
 
+static sigset_t block_signals(void) {
+    sigset_t block_set;
+    sigfillset(&block_set);
+
+    sigset_t old_mask;
+    sigprocmask(SIG_SETMASK, &block_set, &old_mask);
+
+    return old_mask;
+}
+
 int main(int argc, char *argv[]) {
-    sigset_t default_mask;
-    sigset_t suspend_mask = setup_signals(&default_mask);
+    sigset_t default_mask = block_signals();
 
     const char *startup = (argc > 1 && *argv[1] ? argv[1] : default_startup);
     const char *shutdown = (argc > 2 && *argv[2] ? argv[2] : default_shutdown);
 
     run(startup, default_mask);
 
-    while(!terminate)
-        sigsuspend(&suspend_mask);
-
-    shutdown_pid = run(shutdown, default_mask);
-    while(shutdown_pid > 0)
-        sigsuspend(&suspend_mask);
+    wait_for_termination();
+    wait_for_child(run(shutdown, default_mask));
 
     // If we're running as a regular process (not init), don't kill -1.
     if(getpid() == 1) {
