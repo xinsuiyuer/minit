@@ -55,21 +55,6 @@ static int handle_child(pid_t search_pid) {
     return found;
 }
 
-static void wait_for_termination(void) {
-    sigset_t receive_set;
-    sigemptyset(&receive_set);
-    sigaddset(&receive_set, SIGCHLD);
-    sigaddset(&receive_set, SIGTERM);
-    sigaddset(&receive_set, SIGINT);
-
-    while(1) {
-        if(sigwaitinfo(&receive_set, NULL) != SIGCHLD)
-            break;
-
-        handle_child(0);
-    }
-}
-
 static void wait_for_child(pid_t child_pid) {
     sigset_t receive_set;
     sigemptyset(&receive_set);
@@ -78,6 +63,19 @@ static void wait_for_child(pid_t child_pid) {
     do {
         sigwaitinfo(&receive_set, NULL);
     } while(!handle_child(child_pid));
+}
+
+static void wait_for_termination(void) {
+    sigset_t receive_set;
+    sigemptyset(&receive_set);
+    sigaddset(&receive_set, SIGCHLD);
+    sigaddset(&receive_set, SIGTERM);
+    sigaddset(&receive_set, SIGINT);
+
+    // Wait for a termination signal, ignoring EINTR.
+    for(int signal; (signal = sigwaitinfo(&receive_set, NULL)) != SIGTERM
+            && signal != SIGINT; )
+        handle_child(0);
 }
 
 static pid_t run(const char *filename, sigset_t child_mask) {
@@ -119,6 +117,7 @@ int main(int argc, char *argv[]) {
     run(startup, default_mask);
 
     wait_for_termination();
+
     wait_for_child(run(shutdown, default_mask));
 
     // If we're running as a regular process (not init), don't kill -1.
