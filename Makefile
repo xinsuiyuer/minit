@@ -5,7 +5,7 @@ LDFLAGS  = -s
 DATE   := $(shell date +%Y%m%d)
 VERSION = $(DATE)
 
-BIN = minit
+BIN = ex-it
 SRC = $(BIN).c
 
 DIST_BASE = $(BIN)-$(VERSION)
