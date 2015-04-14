@@ -37,16 +37,19 @@ enum {
 
 
 static int wait_for_child(pid_t child_pid) {
-    while(1) {
-        int status;
-        if(wait(&status) == child_pid) {
+    int child_status = E_UNKNOWN;
+
+    int status;
+    for(pid_t pid; (pid = wait(&status)) != -1 || errno != ECHILD; ) {
+        if(pid == child_pid) {
             if(WIFEXITED(status))
-                return WEXITSTATUS(status);
-            if(WIFSIGNALED(status))
-                return E_SIGNALED_START + WTERMSIG(status);
-            return E_UNKNOWN;
+                child_status = WEXITSTATUS(status);
+            else if(WIFSIGNALED(status))
+                child_status = E_SIGNALED_START + WTERMSIG(status);
         }
     }
+
+    return child_status;
 }
 
 static pid_t run_args(char *argv[]) {
