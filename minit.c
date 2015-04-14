@@ -110,11 +110,10 @@ int main(int argc, char *argv[]) {
     wait_for_child(run(shutdown, default_mask));
 
     // If we're running as a regular process (not init), don't kill -1.
-    if(getpid() == 1) {
+    if(getpid() == 1)
         kill(-1, SIGTERM);
-        while(wait(NULL) > 0)
-            continue;
-    }
+    while(wait(NULL) != -1 || errno != ECHILD)
+        continue;
 
     return 0;
 }
