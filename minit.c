@@ -44,25 +44,12 @@ static const char *const default_startup = DEFAULT_STARTUP;
 static const char *const default_shutdown = DEFAULT_SHUTDOWN;
 
 
-static int handle_child(pid_t search_pid) {
-    int found = 0;
-
-    for(pid_t pid; (pid = waitpid(-1, NULL, WNOHANG)) > 0; ) {
-        if(pid == search_pid)
-            found = 1;
-    }
-
-    return found;
-}
-
 static void wait_for_child(pid_t child_pid) {
-    sigset_t receive_set;
-    sigemptyset(&receive_set);
-    sigaddset(&receive_set, SIGCHLD);
-
-    do {
-        sigwaitinfo(&receive_set, NULL);
-    } while(!handle_child(child_pid));
+    for(
+        pid_t pid;
+        ((pid = wait(NULL)) != -1 || errno != ECHILD) && pid != child_pid;
+    )
+        continue;
 }
 
 static void wait_for_termination(void) {
@@ -74,8 +61,10 @@ static void wait_for_termination(void) {
 
     // Wait for a termination signal, ignoring EINTR.
     for(int signal; (signal = sigwaitinfo(&receive_set, NULL)) != SIGTERM
-            && signal != SIGINT; )
-        handle_child(0);
+            && signal != SIGINT; ) {
+        while(waitpid(-1, NULL, WNOHANG) > 0)
+            continue;
+    }
 }
 
 static pid_t run(const char *filename, sigset_t child_mask) {
