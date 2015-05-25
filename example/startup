@@ -1,6 +1,8 @@
-#!/bin/sh
 
-/usr/sbin/sshd
+  # this is comment.
+  /mainsub aa bb ccc #dd
+  /mainsub --args ./aa bb 'ccc dd' #ee
+  /mainsub --args ./aa "bbb\""
 
-. /etc/apache2/envvars
-/usr/sbin/apache2
+  # this is comment.
+
