@@ -1,12 +1,15 @@
 CPPFLAGS =
-CFLAGS   = -Os -Wall -pedantic
-LDFLAGS  = -s
+#CFLAGS   = -Os -Wall -pedantic
+#CFLAGS   = -static -O0 -g -Wall -pedantic -DDEBUG -std=gnu99
+#CFLAGS   = -static -O0 -g -Wall -DDEBUG -std=gnu99
+CFLAGS   = -static -O3 -Wall -std=gnu99
+LDFLAGS  = -s -liberty
 
 DATE   := $(shell date +%Y%m%d)
 VERSION = $(DATE)
 
 BIN = minit
-SRC = $(BIN).c
+SRC = minit.c cmd.c
 
 DIST_BASE = $(BIN)-$(VERSION)
 DIST      = $(DIST_BASE).tar.gz
